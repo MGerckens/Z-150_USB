@@ -1,26 +1,24 @@
 #include <Keyboard.h>
 
-//yellow to +5, orange to gnd
-#define XTCLK 7 //black
-#define XTDATA 8 //brown
-#define XTRESET 6 //red
-//PIN 9 ON MY PRO MICRO IS BROKEN :pain:
+#define XTCLK 7 
+#define XTDATA 8 
+#define XTRESET 6 
 
 volatile int clkcount = 0;
 
 void setup() {
   Keyboard.begin();
   Keyboard.releaseAll();
-  pinMode(2, INPUT_PULLUP);
-  pinMode(XTCLK,INPUT_PULLUP);
+  pinMode(XTCLK,INPUT_PULLUP); //Z-150 requires pullup on clk line
   pinMode(XTDATA, INPUT);
   pinMode(XTRESET, OUTPUT);
+  
   pinMode(LED_BUILTIN_TX,INPUT); //setting these to input stops the onboard LEDs from flashing with every keypress
   pinMode(LED_BUILTIN_RX,INPUT);
   
   attachInterrupt(digitalPinToInterrupt(XTCLK),handleXT,FALLING);
   
-  digitalWrite(XTRESET, LOW); //hard reset board
+  digitalWrite(XTRESET, LOW); //hard reset keyboard on boot
   delay(50);
   digitalWrite(XTRESET,HIGH);
 }
@@ -33,11 +31,11 @@ volatile unsigned char last = 0;
 void handleXT(){
   
   switch(clkcount){
-  case 0:
+  case 0: //skip start bit
     clkcount++;
     break;
-  case 8:
-    scancode += digitalRead(XTDATA) << 7;
+  case 8: //finish and process code
+    scancode += digitalRead(XTDATA) << 7; //add last bit
     if(scancode == last){ //block repeated codes, fixes some weird behavior with held keys
       scancode = 0;
       clkcount = 0;
@@ -59,15 +57,13 @@ void handleXT(){
     clkcount = 0;
     break;
   default:
-    scancode += digitalRead(XTDATA) << (clkcount-1);
+    scancode += digitalRead(XTDATA) << (clkcount-1); //add bit
     clkcount++;
     break;
   }
 }
 
-#include <Keyboard.h>
-
-const char usbcodes[]{
+const char usbcodes[]{ //maps XT code (set 1) to USB code
   '0',
   KEY_ESC,
   '1',
