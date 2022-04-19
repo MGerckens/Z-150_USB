@@ -7,6 +7,10 @@ Pins can be changed via macro definitions, default to:
 - Clock -> 7
 - Data -> 8
 
-I remapped the asterisk button to the Windows key for taking screenshots easily, other mappings can be added in the same switch statement. May be useful if you need F11 or F12.
+Default button remaps:
+- Asterisk -> Windows key
+- Numpad minus -> F11
+- Numpad plus -> F12
+- Shift+alt+numpad -> Media controls (volume up/down, play/pause, previous/next)
 
-The Z-150 XT is slightly off-spec from normal PC-XT keyboards, requiring the reset line to be used and the clock to be pulled high. There are existing converters that work with it, but they're all rather complex to set up and built around the Teensy. This one can be sent with the Arduino IDE without compiling or messing with the bootloader.
+The Z-150 XT is slightly off-spec from normal PC-XT keyboards, requiring the reset line to be used and the clock to be pulled high. There are existing converters that work with it, but they're all rather complex to set up and built around the Teensy. This one can be written via the Arduino IDE without compiling or messing with the bootloader.
