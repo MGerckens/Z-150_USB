@@ -114,7 +114,7 @@ void handleXT(){
           Keyboard.press(KEY_LEFT_GUI);
           break;
         case 0xB7:
-          Keyboard.release(KEY_RIGHT_GUI);
+          Keyboard.release(KEY_LEFT_GUI);
           break;
         default:
           if(scancode&0x80){Keyboard.release(usbcodes[scancode&~0x80]);}
