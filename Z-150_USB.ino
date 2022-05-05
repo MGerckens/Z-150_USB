@@ -99,16 +99,48 @@ void handleXT(){
       }
       switch(scancode){
         case 0x4A: //numpad '-' -> F11
-          Keyboard.press(KEY_F11);
+          if(!numLockOn){
+            Keyboard.press(KEY_F11);
+          }else{
+            if(scancode&0x80){
+              Keyboard.release(usbcodes[scancode&~0x80]);
+            }else{
+              Keyboard.press(usbcodes[scancode]);
+            }
+          }
           break;
         case 0xCA:
-          Keyboard.release(KEY_F11);
+          if(!numLockOn){
+            Keyboard.release(KEY_F11);
+          }else{
+            if(scancode&0x80){
+              Keyboard.release(usbcodes[scancode&~0x80]);
+            }else{
+              Keyboard.press(usbcodes[scancode]);
+            }
+          }
           break;
         case 0x4E: //numpad '+' -> F12
-          Keyboard.press(KEY_F12);
+          if(!numLockOn){
+            Keyboard.press(KEY_F12);
+          }else{
+            if(scancode&0x80){
+              Keyboard.release(usbcodes[scancode&~0x80]);
+            }else{
+              Keyboard.press(usbcodes[scancode]);
+            }
+          }
           break;
         case 0xCE:
-          Keyboard.release(KEY_F12);
+          if(!numLockOn){
+            Keyboard.release(KEY_F12);
+          }else{
+            if(scancode&0x80){
+              Keyboard.release(usbcodes[scancode&~0x80]);
+            }else{
+              Keyboard.press(usbcodes[scancode]);
+            }
+          }
           break;
         case 0x37: //'*' -> windows key
           Keyboard.press(KEY_LEFT_GUI);
