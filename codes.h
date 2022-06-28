@@ -1,3 +1,4 @@
+#include <Keyboard.h>
 const char usbcodes[]{
   '0',
   KEY_ESC,
@@ -54,7 +55,7 @@ const char usbcodes[]{
   '.',
   '/',
   KEY_RIGHT_SHIFT,
-  '*',
+  KEY_LEFT_GUI, //'*' -> windows key
   KEY_LEFT_ALT,
   ' ',
   KEY_CAPS_LOCK,
@@ -68,19 +69,19 @@ const char usbcodes[]{
   KEY_F8,
   KEY_F9,
   KEY_F10,
-  219,
-  207,
-  231,
-  232,
-  233,
-  222,
-  228,
-  229,
-  230,
-  223,
-  225,
-  226,
-  227,
-  234,
-  235  
+  KEY_NUM_LOCK,
+  KEY_SCROLL_LOCK,
+  KEY_KP_7,
+  KEY_KP_8,
+  KEY_KP_9,
+  KEY_KP_MINUS,
+  KEY_KP_4,
+  KEY_KP_5,
+  KEY_KP_6,
+  KEY_KP_PLUS,
+  KEY_KP_1,
+  KEY_KP_2,
+  KEY_KP_3,
+  KEY_KP_0,
+  KEY_KP_DOT  
 };

@@ -38,15 +38,25 @@ unsigned char scancode;
 unsigned char last = 0;
 int clkcount = 0;
 
-void handleXT(){
-  
-  switch(clkcount){
-  case 0: //ignore start bit
-    clkcount++;
-    break;
-  case 8:
-    scancode += digitalRead(XTDATA) << 7;
-    
+const char numpad_switch_table[][2] = {
+  {KEY_UP_ARROW,KEY_KP_8},    //8 -> up
+  {KEY_F11,KEY_KP_MINUS},     //numpad minus -> F11
+  {KEY_LEFT_ARROW,KEY_KP_4},  //4 -> left
+  {KEY_RIGHT_ARROW,KEY_KP_6}, //6 -> right
+  {KEY_F12,KEY_KP_PLUS},      //numpad plus -> F12
+  {KEY_DOWN_ARROW,KEY_KP_2}   //2 -> down
+};
+
+int findInTable(unsigned char code, bool numLockOn){
+  for(int i = 0; i < 6; i++){
+    if(numpad_switch_table[i][1] == code){
+      return numpad_switch_table[i][numLockOn];
+    }
+  }
+  return code;
+}
+
+void processCode(){
     if(scancode == 0x2A){ leftShiftDown = true;} //track if left shift is being held
     else if(scancode == 0xAA){ leftShiftDown = false;}
 
@@ -84,75 +94,37 @@ void handleXT(){
           Remote.clear();
           break;
         default:
-          if(scancode&0x80){Keyboard.release(usbcodes[scancode&~0x80]);}
-          else{Keyboard.press(usbcodes[scancode]);}
+          if(scancode&0x80){
+            Keyboard.release(findInTable(usbcodes[scancode&~0x80],numLockOn));
+          }else{
+            Keyboard.press(findInTable(usbcodes[scancode],numLockOn));
+          }
       }
       if(leftShiftDown){Keyboard.press(KEY_LEFT_SHIFT);} //re-press all buttons to avoid desync
       if(rightShiftDown){Keyboard.press(KEY_RIGHT_SHIFT);}
       Keyboard.press(KEY_LEFT_ALT);
-      
     }else{
-      if(scancode == last){ //block repeated codes, fixes some weird behavior with held keys (only in else block, to allow volume keys to be held)
-        scancode = 0;
-        clkcount = 0;
+      if(scancode == last){ //block repeated codes, fixes some weird behavior with held keys 
+        scancode = 0;       //OS (or at least windows) automatically holds key until released, repeated "press" commands are unnecessary 
+        clkcount = 0;       //only in else block, to allow volume keys to be held
         return;
       }
-      switch(scancode){
-        case 0x4A: //numpad '-' -> F11
-          if(!numLockOn){
-            Keyboard.press(KEY_F11);
-          }else{
-            if(scancode&0x80){
-              Keyboard.release(usbcodes[scancode&~0x80]);
-            }else{
-              Keyboard.press(usbcodes[scancode]);
-            }
-          }
-          break;
-        case 0xCA:
-          if(!numLockOn){
-            Keyboard.release(KEY_F11);
-          }else{
-            if(scancode&0x80){
-              Keyboard.release(usbcodes[scancode&~0x80]);
-            }else{
-              Keyboard.press(usbcodes[scancode]);
-            }
-          }
-          break;
-        case 0x4E: //numpad '+' -> F12
-          if(!numLockOn){
-            Keyboard.press(KEY_F12);
-          }else{
-            if(scancode&0x80){
-              Keyboard.release(usbcodes[scancode&~0x80]);
-            }else{
-              Keyboard.press(usbcodes[scancode]);
-            }
-          }
-          break;
-        case 0xCE:
-          if(!numLockOn){
-            Keyboard.release(KEY_F12);
-          }else{
-            if(scancode&0x80){
-              Keyboard.release(usbcodes[scancode&~0x80]);
-            }else{
-              Keyboard.press(usbcodes[scancode]);
-            }
-          }
-          break;
-        case 0x37: //'*' -> windows key
-          Keyboard.press(KEY_LEFT_GUI);
-          break;
-        case 0xB7:
-          Keyboard.release(KEY_LEFT_GUI);
-          break;
-        default:
-          if(scancode&0x80){Keyboard.release(usbcodes[scancode&~0x80]);}
-          else{Keyboard.press(usbcodes[scancode]);}
+      if(scancode&0x80){
+        Keyboard.release(findInTable(usbcodes[scancode&~0x80],numLockOn));
+      }else{
+        Keyboard.press(findInTable(usbcodes[scancode],numLockOn));
       }
     }
+}
+
+void handleXT(){
+  switch(clkcount){
+  case 0: //ignore start bit
+    clkcount++;
+    break;
+  case 8:
+    scancode += digitalRead(XTDATA) << 7;
+    processCode();
     last = scancode;
     scancode = 0;
     clkcount = 0;
