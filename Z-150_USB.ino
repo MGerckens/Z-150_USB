@@ -38,24 +38,6 @@ unsigned char scancode;
 unsigned char last = 0;
 int clkcount = 0;
 
-const char numpad_switch_table[][2] = {
-  {KEY_UP_ARROW,KEY_KP_8},    //8 -> up
-  {KEY_F11,KEY_KP_MINUS},     //numpad minus -> F11
-  {KEY_LEFT_ARROW,KEY_KP_4},  //4 -> left
-  {KEY_RIGHT_ARROW,KEY_KP_6}, //6 -> right
-  {KEY_F12,KEY_KP_PLUS},      //numpad plus -> F12
-  {KEY_DOWN_ARROW,KEY_KP_2}   //2 -> down
-};
-
-int findInTable(unsigned char code, bool numLockOn){
-  for(int i = 0; i < 6; i++){
-    if(numpad_switch_table[i][1] == code){
-      return numpad_switch_table[i][numLockOn];
-    }
-  }
-  return code;
-}
-
 void processCode(){
     if(scancode == 0x2A){ leftShiftDown = true;} //track if left shift is being held
     else if(scancode == 0xAA){ leftShiftDown = false;}
@@ -95,9 +77,9 @@ void processCode(){
           break;
         default:
           if(scancode&0x80){
-            Keyboard.release(findInTable(usbcodes[scancode&~0x80],numLockOn));
+            Keyboard.release(usbcodes[numLockOn][scancode&~0x80]);
           }else{
-            Keyboard.press(findInTable(usbcodes[scancode],numLockOn));
+            Keyboard.press(usbcodes[numLockOn][scancode]);
           }
       }
       if(leftShiftDown){Keyboard.press(KEY_LEFT_SHIFT);} //re-press all buttons to avoid desync
@@ -110,10 +92,10 @@ void processCode(){
         return;
       }
       if(scancode&0x80){
-        Keyboard.release(findInTable(usbcodes[scancode&~0x80],numLockOn));
-      }else{
-        Keyboard.press(findInTable(usbcodes[scancode],numLockOn));
-      }
+            Keyboard.release(usbcodes[numLockOn][scancode&~0x80]);
+          }else{
+            Keyboard.press(usbcodes[numLockOn][scancode]);
+          }
     }
 }
 
@@ -123,10 +105,10 @@ void handleXT(){
     clkcount++;
     break;
   case 8:
-    scancode += digitalRead(XTDATA) << 7;
-    processCode();
-    last = scancode;
-    scancode = 0;
+    scancode += digitalRead(XTDATA) << 7; //add last bit
+    processCode(); //send keypress
+    last = scancode;  //track last keypress, to prevent repeats
+    scancode = 0; //reset for next keypress
     clkcount = 0;
     break;
   default:
